@@ -2,11 +2,10 @@ import random
 from typing import Optional
 import arcade
 import arcade.gui
+from arcade.gui import UIManager
+
 from card import Card
 from constants import *
-
-restart_image = arcade.load_texture("resources/images/restart-icon.png")
-pause_image = arcade.load_texture("resources/images/pause-button-png-29666.png")
 
 
 class StartView(arcade.View):
@@ -15,9 +14,12 @@ class StartView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Welcome to Solitaire!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, font_size=50, anchor_x="center")
-        arcade.draw_text("Press 1 for Regular Solitaire", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, arcade.color.WHITE, font_size=20, anchor_x="center")
-        arcade.draw_text("Press 2 for Vegas Rules", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, arcade.color.WHITE, font_size=20, anchor_x="center")
+        arcade.draw_text("Welcome to Solitaire!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, font_size=50,
+                         anchor_x="center")
+        arcade.draw_text("Press 1 for Regular Solitaire", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, arcade.color.WHITE,
+                         font_size=20, anchor_x="center")
+        arcade.draw_text("Press 2 for Vegas Rules", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, arcade.color.WHITE,
+                         font_size=20, anchor_x="center")
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.KEY_1:
@@ -43,23 +45,14 @@ class GameView(arcade.View):
 
         arcade.set_background_color(arcade.color.AMAZON)
 
+        self.pause_text = "Press 'P' to Pause"
+        self.restart_text = "Press 'R' to Restart"
+
         self.held_cards = None
         self.held_cards_original_position = None
 
         self.pile_mat_list = None
         self.piles = None
-
-        self.button_list = arcade.SpriteList()
-        self.pause_button = arcade.Sprite("resources/images/pause-button-png-29666.png", 0.5)
-        self.restart_button = arcade.Sprite("resources/images/restart-icon.png", 0.5)
-
-        self.pause_button.center_x = SCREEN_WIDTH - 50
-        self.pause_button.center_y = SCREEN_HEIGHT - 50
-        self.button_list.append(self.pause_button)
-
-        self.restart_button.center_x = SCREEN_WIDTH - 100
-        self.restart_button.center_y = SCREEN_HEIGHT - 50
-        self.button_list.append(self.restart_button)
 
     def setup(self):
 
@@ -188,11 +181,17 @@ class GameView(arcade.View):
         if self.game_paused:
             arcade.draw_text("Game Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                              arcade.color.WHITE, font_size=50, anchor_x="center")
-            arcade.draw_text("Press the space bar to unpause", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
+            arcade.draw_text("Press the 'SPACE' to unpause", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
                              arcade.color.WHITE, font_size=30, anchor_x="center")
         else:
-            self.button_list.draw()
-
+            if self.pause_text:
+                arcade.draw_text("Press 'SPACE' to Pause", SCREEN_WIDTH - 40, SCREEN_HEIGHT - 10, arcade.color.WHITE,
+                                 font_size=14, align="right", anchor_x="right", anchor_y="top",
+                                 width=500)
+            if self.restart_text:
+                arcade.draw_text("Press 'R' to Restart", SCREEN_WIDTH - 40, SCREEN_HEIGHT - 30, arcade.color.WHITE,
+                                 font_size=14, align="right", anchor_x="right", anchor_y="top",
+                                 width=500)
             # Display the current score on the screen in the bottom right
             score_text = f"Score: {self.score}"
             arcade.draw_text(score_text, SCREEN_WIDTH - 40, 40, arcade.color.WHITE, font_size=20, anchor_x="right",
@@ -217,13 +216,6 @@ class GameView(arcade.View):
     def on_mouse_press(self, x, y, button, key_modifiers):
         if self.game_paused:  # Check if the game is paused
             return  # Ignore mouse press events when the game is paused
-
-        buttons = arcade.get_sprites_at_point((x, y), self.button_list)
-        if len(buttons) > 0:
-            if buttons[0] == self.pause_button:
-                self.game_paused = not self.game_paused
-            elif buttons[0] == self.restart_button:
-                self.setup()
 
         cards = arcade.get_sprites_at_point((x, y), self.card_list)
 

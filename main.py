@@ -1,3 +1,6 @@
+import os
+import sys
+
 import arcade
 from game import StartView
 
