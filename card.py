@@ -10,8 +10,9 @@ class Card(arcade.Sprite):
         self.value = value
 
         self.image_file_name = f":resources:images/cards/card{self.suit}{self.value}.png"
+        self.face_down_image = ":resources:images/cards/cardBack_red5.png"
         self.is_face_up = False
-        super().__init__(FACE_DOWN_IMAGE, scale, hit_box_algorithm="None")
+        super().__init__(self.face_down_image, scale, hit_box_algorithm="None")
 
     def face_down(self):
         self.texture = arcade.load_texture(FACE_DOWN_IMAGE)

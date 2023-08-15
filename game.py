@@ -2,7 +2,6 @@ import random
 from typing import Optional
 import arcade
 import arcade.gui
-from arcade.gui import UIManager
 
 from card import Card
 from constants import *
@@ -10,16 +9,18 @@ from constants import *
 
 class StartView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.DARTMOUTH_GREEN)
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Welcome to Solitaire!", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, arcade.color.WHITE, font_size=50,
-                         anchor_x="center")
-        arcade.draw_text("Press 1 for Regular Solitaire", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 75, arcade.color.WHITE,
-                         font_size=20, anchor_x="center")
-        arcade.draw_text("Press 2 for Vegas Rules", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, arcade.color.WHITE,
-                         font_size=20, anchor_x="center")
+        arcade.draw_text("Welcome to Solitaire!", SCREEN_WIDTH // 2, SCREEN_HEIGHT * 3 // 4,
+                         arcade.color.GOLD, font_size=60, anchor_x="center")
+        arcade.draw_text("Choose Your Game Mode:", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40,
+                         arcade.color.WHITE, font_size=28, anchor_x="center")
+        arcade.draw_text("Press 1 for Classic Solitaire", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80,
+                         arcade.color.WHITE, font_size=28, anchor_x="center")
+        arcade.draw_text("Press 2 for Vegas Rules", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 120,
+                         arcade.color.WHITE, font_size=28, anchor_x="center")
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.KEY_1:
@@ -38,12 +39,12 @@ class GameView(arcade.View):
         super().__init__()
 
         self.vegas_rules = vegas_rules
-        self.score = -52 if self.vegas_rules else 0  # Initialize the score based on the game mode
+
         self.card_list: Optional[arcade.SpriteList] = None
         self.game_paused = False
         self.is_game_won = False
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.DARTMOUTH_GREEN)
 
         self.pause_text = "Press 'P' to Pause"
         self.restart_text = "Press 'R' to Restart"
@@ -57,26 +58,26 @@ class GameView(arcade.View):
     def setup(self):
 
         self.held_cards = []
-
+        self.score = -52 if self.vegas_rules else 0
         self.held_cards_original_position = []
 
         self.pile_mat_list: arcade.SpriteList = arcade.SpriteList()
 
-        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.DARK_GRAY)
+        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.AMAZON)
         pile.position = START_X, BOTTOM_Y
         self.pile_mat_list.append(pile)
 
-        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.DARK_GRAY)
+        pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.AMAZON)
         pile.position = START_X + X_SPACING, BOTTOM_Y
         self.pile_mat_list.append(pile)
 
         for i in range(7):
-            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.DARK_GRAY)
+            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.AMAZON)
             pile.position = START_X + i * X_SPACING, MIDDLE_Y
             self.pile_mat_list.append(pile)
 
         for i in range(4):
-            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.DARK_GRAY)
+            pile = arcade.SpriteSolidColor(MAT_WIDTH, MAT_HEIGHT, arcade.color.AMAZON)
             pile.position = START_X + i * X_SPACING, TOP_Y
             self.pile_mat_list.append(pile)
 
@@ -112,10 +113,10 @@ class GameView(arcade.View):
             self.piles[i][-1].face_up()
 
         if self.vegas_rules:
-            # Vegas rules setup (if needed)
+
             pass
         else:
-            # Regular Solitaire setup (default setup)
+
             pass
 
     def build_foundation(self, card: Card):
@@ -175,15 +176,15 @@ class GameView(arcade.View):
 
     def on_draw(self):
         self.clear()
-        self.pile_mat_list.draw()
-        self.card_list.draw()
 
         if self.game_paused:
+            arcade.set_background_color(arcade.color.DARK_GRAY)
             arcade.draw_text("Game Paused", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                              arcade.color.WHITE, font_size=50, anchor_x="center")
             arcade.draw_text("Press the 'SPACE' to unpause", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 50,
                              arcade.color.WHITE, font_size=30, anchor_x="center")
         else:
+            arcade.set_background_color(arcade.color.DARTMOUTH_GREEN)
             if self.pause_text:
                 arcade.draw_text("Press 'SPACE' to Pause", SCREEN_WIDTH - 40, SCREEN_HEIGHT - 10, arcade.color.WHITE,
                                  font_size=14, align="right", anchor_x="right", anchor_y="top",
@@ -196,6 +197,9 @@ class GameView(arcade.View):
             score_text = f"Score: {self.score}"
             arcade.draw_text(score_text, SCREEN_WIDTH - 40, 40, arcade.color.WHITE, font_size=20, anchor_x="right",
                              anchor_y="bottom")
+
+            self.pile_mat_list.draw()
+            self.card_list.draw()
 
     def pull_to_top(self, card: arcade.Sprite):
 
@@ -380,14 +384,14 @@ class GameView(arcade.View):
 
     def update_score(self, score_delta):
         if self.vegas_rules:
-            # Apply Vegas Solitaire scoring rules
+
             self.score += score_delta
         else:
-            # Apply Regular Solitaire scoring rules (default setup)
+
             self.score += score_delta
 
     def perform_action_and_update_score(self, action):
-        # Perform the action (move) and update the score accordingly
+
         if action == "waste_to_tableau" or action == "waste_to_foundation" or action == "tableau_to_foundation" or action == "turn_tableau_card":
             self.update_score(5)
         elif action == "foundation_to_tableau":
